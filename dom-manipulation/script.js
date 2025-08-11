@@ -1,37 +1,24 @@
-// Initialize quotes array and filter state
+// Initialize quotes array and current filter
 let quotes = [];
-let currentFilter = 'all'; // Tracks the currently selected filter
-let currentCategory = null; // For button-based filtering (kept for backward compatibility)
+let selectedCategory = 'all'; // Renamed from currentFilter to match requirement
 
 // DOM elements
 const quoteDisplay = document.getElementById('quoteDisplay');
 const quoteTextElement = document.getElementById('quoteText');
 const quoteCategoryElement = document.getElementById('quoteCategory');
 const newQuoteButton = document.getElementById('newQuote');
-const categoryButtonsContainer = document.getElementById('categoryButtons');
 const categoryFilter = document.getElementById('categoryFilter');
 const resetFilterButton = document.getElementById('resetFilter');
 const filterStatus = document.getElementById('filterStatus');
 const addQuoteButton = document.getElementById('addQuoteBtn');
-const exportButton = document.getElementById('exportQuotes');
-const importFileInput = document.getElementById('importFile');
-const importButton = document.getElementById('importQuotes');
-const clearStorageButton = document.getElementById('clearStorage');
 
 // Initialize the application
 function init() {
     loadQuotes();
-    createAddQuoteForm();
-    createCategoryButtons(); // For button-based filtering
-    populateCategories(); // For dropdown filtering
-    restoreLastFilter();
+    populateCategories();
+    restoreSelectedCategory(); // Restore the last selected category
     showRandomQuote();
     setupEventListeners();
-}
-
-// Create the add quote form
-function createAddQuoteForm() {
-    console.log("Add quote form is ready");
 }
 
 // Load quotes from localStorage
@@ -48,52 +35,15 @@ function loadQuotes() {
         ];
         saveQuotes();
     }
-    sessionStorage.setItem('lastInit', new Date().toISOString());
 }
 
-// Save quotes and current filter to localStorage
+// Save quotes and selected category to localStorage
 function saveQuotes() {
     localStorage.setItem('quotes', JSON.stringify(quotes));
-    localStorage.setItem('lastFilter', currentFilter);
+    localStorage.setItem('selectedCategory', selectedCategory); // Save the selected category
 }
 
-// Create category buttons (button-based filtering)
-function createCategoryButtons() {
-    categoryButtonsContainer.innerHTML = '';
-
-    // Add "All" button
-    const allButton = document.createElement('button');
-    allButton.textContent = 'All';
-    allButton.className = 'category-btn';
-    allButton.addEventListener('click', () => {
-        currentCategory = null;
-        currentFilter = 'all';
-        showRandomQuote();
-        highlightSelectedButton(allButton);
-        updateFilterStatus();
-    });
-    categoryButtonsContainer.appendChild(allButton);
-
-    // Get unique categories
-    const categories = [...new Set(quotes.map(quote => quote.category))];
-
-    // Add category buttons
-    categories.forEach(category => {
-        const button = document.createElement('button');
-        button.textContent = category;
-        button.className = 'category-btn';
-        button.addEventListener('click', () => {
-            currentCategory = category;
-            currentFilter = category;
-            showRandomQuote();
-            highlightSelectedButton(button);
-            updateFilterStatus();
-        });
-        categoryButtonsContainer.appendChild(button);
-    });
-}
-
-// Populate category dropdown (dropdown-based filtering)
+// Populate category dropdown
 function populateCategories() {
     // Clear existing options except "All"
     while (categoryFilter.options.length > 1) {
@@ -112,99 +62,80 @@ function populateCategories() {
     });
 }
 
-// Filter quotes based on selected category (dropdown)
+// Filter quotes based on selected category
 function filterQuotes() {
-    currentFilter = categoryFilter.value;
-    currentCategory = currentFilter === 'all' ? null : currentFilter;
-    saveQuotes();
-    showRandomQuote();
+    // Get the selected category from dropdown
+    selectedCategory = categoryFilter.value;
+
+    // Save the selected category to localStorage
+    localStorage.setItem('selectedCategory', selectedCategory);
+
+    // Update the displayed quote
+    updateQuoteDisplay();
+
+    // Update the filter status display
     updateFilterStatus();
-
-    // Sync button highlighting
-    const buttons = categoryButtonsContainer.querySelectorAll('button');
-    buttons.forEach(button => {
-        button.classList.toggle('selected',
-            (currentFilter === 'all' && button.textContent === 'All') ||
-            button.textContent === currentFilter
-        );
-    });
 }
 
-// Highlight selected button (button-based filtering)
-function highlightSelectedButton(selectedButton) {
-    const buttons = categoryButtonsContainer.querySelectorAll('button');
-    buttons.forEach(button => {
-        button.classList.toggle('selected', button === selectedButton);
-    });
-}
-
-// Update the displayed quote
+// Update the displayed quote based on selected category
 function updateQuoteDisplay() {
-    let filteredQuotes = currentFilter === 'all'
+    // Filter quotes based on current selection
+    const filteredQuotes = selectedCategory === 'all'
         ? quotes
-        : quotes.filter(quote => quote.category === currentFilter);
+        : quotes.filter(quote => quote.category === selectedCategory);
 
     if (filteredQuotes.length === 0) {
-        quoteTextElement.textContent = currentFilter === 'all'
+        quoteTextElement.textContent = selectedCategory === 'all'
             ? "No quotes available."
-            : `No quotes available in "${currentFilter}" category`;
+            : `No quotes available in "${selectedCategory}" category`;
         quoteCategoryElement.textContent = "";
+        quoteDisplay.style.display = 'block';
         return;
     }
 
+    // Get a random quote from the filtered list
     const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
     const randomQuote = filteredQuotes[randomIndex];
 
+    // Update the DOM
     quoteTextElement.textContent = randomQuote.text;
     quoteCategoryElement.textContent = `— ${randomQuote.category}`;
+    quoteDisplay.style.display = 'block';
 }
 
-// Show random quote (respects current filter)
+// Restore the last selected category from localStorage
+function restoreSelectedCategory() {
+    const savedCategory = localStorage.getItem('selectedCategory');
+    if (savedCategory) {
+        selectedCategory = savedCategory;
+        categoryFilter.value = selectedCategory;
+        console.log(`Restored selected category: ${selectedCategory}`);
+    }
+}
+
+// Show random quote (respects selected category)
 function showRandomQuote() {
     updateQuoteDisplay();
 }
 
-// Restore last selected filter from storage
-function restoreLastFilter() {
-    const savedFilter = localStorage.getItem('lastFilter');
-    if (savedFilter) {
-        currentFilter = savedFilter;
-        categoryFilter.value = currentFilter;
-
-        // Sync button highlighting
-        const buttons = categoryButtonsContainer.querySelectorAll('button');
-        buttons.forEach(button => {
-            button.classList.toggle('selected',
-                (currentFilter === 'all' && button.textContent === 'All') ||
-                button.textContent === currentFilter
-            );
-        });
-    }
-}
-
 // Update filter status display
 function updateFilterStatus() {
-    if (currentFilter === 'all') {
+    if (selectedCategory === 'all') {
         filterStatus.textContent = "Showing all quotes";
         filterStatus.classList.remove('active-filter');
     } else {
-        filterStatus.textContent = `Showing: ${currentFilter}`;
+        filterStatus.textContent = `Showing: ${selectedCategory}`;
         filterStatus.classList.add('active-filter');
     }
 }
 
 // Reset filter to show all categories
 function resetFilter() {
-    currentFilter = 'all';
-    currentCategory = null;
+    selectedCategory = 'all';
     categoryFilter.value = 'all';
-    saveQuotes();
-    showRandomQuote();
+    localStorage.setItem('selectedCategory', 'all'); // Update storage
+    updateQuoteDisplay();
     updateFilterStatus();
-
-    // Sync button highlighting
-    const allButton = categoryButtonsContainer.querySelector('button');
-    highlightSelectedButton(allButton);
 }
 
 // Add a new quote
@@ -227,11 +158,10 @@ function addQuote() {
     document.getElementById('newQuoteCategory').value = '';
 
     // Update UI
-    createCategoryButtons();
-    populateCategories();
+    populateCategories(); // Refresh category dropdown
 
-    // If new category matches current filter, show the quote
-    if (currentFilter === 'all' || currentFilter === quoteCategory) {
+    // If new category matches selected category, show the quote
+    if (selectedCategory === 'all' || selectedCategory === quoteCategory) {
         quoteTextElement.textContent = newQuote.text;
         quoteCategoryElement.textContent = `— ${newQuote.category}`;
     }
@@ -284,9 +214,8 @@ function importQuotes() {
 
             quotes = importedQuotes;
             saveQuotes();
-            createCategoryButtons();
             populateCategories();
-            showRandomQuote();
+            updateQuoteDisplay();
             alert(`Imported ${importedQuotes.length} quotes successfully!`);
         } catch (error) {
             alert(`Error importing quotes: ${error.message}`);
@@ -299,9 +228,8 @@ function importQuotes() {
 function clearStorage() {
     if (confirm('Are you sure you want to clear all quotes and reset to default?')) {
         localStorage.removeItem('quotes');
-        localStorage.removeItem('lastFilter');
+        localStorage.removeItem('selectedCategory');
         loadQuotes();
-        createCategoryButtons();
         populateCategories();
         resetFilter();
     }
@@ -320,9 +248,9 @@ function setupEventListeners() {
     addQuoteButton.addEventListener('click', addQuote);
 
     // Data management
-    exportButton.addEventListener('click', exportQuotes);
-    importButton.addEventListener('click', importQuotes);
-    clearStorageButton.addEventListener('click', clearStorage);
+    document.getElementById('exportQuotes').addEventListener('click', exportQuotes);
+    document.getElementById('importQuotes').addEventListener('click', importQuotes);
+    document.getElementById('clearStorage').addEventListener('click', clearStorage);
 }
 
 // Initialize the app
