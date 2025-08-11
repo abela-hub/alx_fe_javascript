@@ -2,9 +2,7 @@
 const quotes = [
     { text: "The only way to do great work is to love what you do.", category: "Motivational" },
     { text: "Innovation distinguishes between a leader and a follower.", category: "Business" },
-    { text: "Your time is limited, don't waste it living someone else's life.", category: "Life" },
-    { text: "Stay hungry, stay foolish.", category: "Wisdom" },
-    { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", category: "Inspirational" }
+    { text: "Your time is limited, don't waste it living someone else's life.", category: "Life" }
 ];
 
 // DOM elements
@@ -13,53 +11,42 @@ const quoteCategoryElement = document.getElementById('quoteCategory');
 const newQuoteButton = document.getElementById('newQuote');
 const categoryButtonsContainer = document.getElementById('categoryButtons');
 
-// Current selected category (null means all categories)
+// Current selected category
 let currentCategory = null;
 
 // Initialize the application
 function init() {
-    // Display first quote
     showRandomQuote();
-
-    // Create category buttons
     createCategoryButtons();
 
-    // Add event listener for new quote button
-    newQuoteButton.addEventListener('click', showRandomQuote);
+    // Explicit event listener for "Show New Quote" button
+    newQuoteButton.addEventListener('click', function () {
+        showRandomQuote();
+    });
 }
 
-// Display a random quote
+// Display random quote
 function showRandomQuote() {
-    let filteredQuotes = quotes;
+    let filteredQuotes = currentCategory
+        ? quotes.filter(quote => quote.category === currentCategory)
+        : quotes;
 
-    // Filter by category if one is selected
-    if (currentCategory) {
-        filteredQuotes = quotes.filter(quote => quote.category === currentCategory);
-    }
-
-    // Check if there are quotes available
     if (filteredQuotes.length === 0) {
         quoteTextElement.textContent = "No quotes available in this category.";
         quoteCategoryElement.textContent = "";
         return;
     }
 
-    // Get random quote
     const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
     const randomQuote = filteredQuotes[randomIndex];
 
-    // Update DOM
     quoteTextElement.textContent = randomQuote.text;
     quoteCategoryElement.textContent = `— ${randomQuote.category}`;
 }
 
 // Create category buttons
 function createCategoryButtons() {
-    // Clear existing buttons
     categoryButtonsContainer.innerHTML = '';
-
-    // Get all unique categories
-    const categories = [...new Set(quotes.map(quote => quote.category))];
 
     // Add "All" button
     const allButton = document.createElement('button');
@@ -72,7 +59,10 @@ function createCategoryButtons() {
     });
     categoryButtonsContainer.appendChild(allButton);
 
-    // Add buttons for each category
+    // Get unique categories
+    const categories = [...new Set(quotes.map(quote => quote.category))];
+
+    // Add category buttons
     categories.forEach(category => {
         const button = document.createElement('button');
         button.textContent = category;
@@ -86,7 +76,7 @@ function createCategoryButtons() {
     });
 }
 
-// Highlight the selected category button
+// Highlight selected button
 function highlightSelectedButton(selectedButton) {
     const buttons = categoryButtonsContainer.querySelectorAll('button');
     buttons.forEach(button => {
@@ -94,38 +84,38 @@ function highlightSelectedButton(selectedButton) {
     });
 }
 
-// Add a new quote
+// Function to add new quote (equivalent to createAddQuoteForm functionality)
 function addQuote() {
-    const newQuoteText = document.getElementById('newQuoteText').value;
-    const newQuoteCategory = document.getElementById('newQuoteCategory').value;
+    const quoteText = document.getElementById('newQuoteText').value.trim();
+    const quoteCategory = document.getElementById('newQuoteCategory').value.trim();
 
-    if (newQuoteText && newQuoteCategory) {
-        // Add new quote to array
-        quotes.push({
-            text: newQuoteText,
-            category: newQuoteCategory
-        });
-
-        // Clear input fields
-        document.getElementById('newQuoteText').value = '';
-        document.getElementById('newQuoteCategory').value = '';
-
-        // Recreate category buttons to include new category if needed
-        createCategoryButtons();
-
-        // Show the newly added quote
-        quoteTextElement.textContent = newQuoteText;
-        quoteCategoryElement.textContent = `— ${newQuoteCategory}`;
-
-        // Set current category to the new one
-        currentCategory = newQuoteCategory;
-        highlightSelectedButton([...categoryButtonsContainer.querySelectorAll('button')].find(
-            btn => btn.textContent === newQuoteCategory
-        ) || categoryButtonsContainer.querySelector('button'));
-    } else {
+    if (!quoteText || !quoteCategory) {
         alert('Please enter both quote text and category!');
+        return;
     }
+
+    // Add to quotes array
+    const newQuote = {
+        text: quoteText,
+        category: quoteCategory
+    };
+    quotes.push(newQuote);
+
+    // Clear inputs
+    document.getElementById('newQuoteText').value = '';
+    document.getElementById('newQuoteCategory').value = '';
+
+    // Update UI
+    createCategoryButtons();
+    currentCategory = quoteCategory;
+    quoteTextElement.textContent = newQuote.text;
+    quoteCategoryElement.textContent = `— ${newQuote.category}`;
+
+    // Highlight the new category button
+    const newCategoryButton = [...categoryButtonsContainer.querySelectorAll('button')]
+        .find(btn => btn.textContent === quoteCategory);
+    if (newCategoryButton) highlightSelectedButton(newCategoryButton);
 }
 
-// Initialize the app when the DOM is loaded
+// Initialize when DOM loads
 document.addEventListener('DOMContentLoaded', init);
