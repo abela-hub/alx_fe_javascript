@@ -15,20 +15,7 @@ const newQuoteText = document.getElementById('newQuoteText');
 const newQuoteCategory = document.getElementById('newQuoteCategory');
 const categorySelect = document.getElementById('categorySelect');
 
-// Initialize the app
-function init() {
-    // Set up event listeners
-    newQuoteBtn.addEventListener('click', showRandomQuote);
-    addQuoteBtn.addEventListener('click', addQuote);
-
-    // Populate category filter
-    updateCategoryFilter();
-
-    // Show initial random quote
-    showRandomQuote();
-}
-
-// Display a random quote
+// Function to display a random quote
 function showRandomQuote() {
     let filteredQuotes = quotes;
     const selectedCategory = categorySelect.value;
@@ -51,7 +38,7 @@ function showRandomQuote() {
     `;
 }
 
-// Add a new quote
+// Function to add a new quote
 function addQuote() {
     const text = newQuoteText.value.trim();
     const category = newQuoteCategory.value.trim();
@@ -76,7 +63,7 @@ function addQuote() {
     alert('Quote added successfully!');
 }
 
-// Update the category filter dropdown
+// Function to update the category filter dropdown
 function updateCategoryFilter() {
     // Get all unique categories
     const categories = [...new Set(quotes.map(quote => quote.category))];
@@ -101,6 +88,19 @@ function updateCategoryFilter() {
     if (categories.includes(currentSelection)) {
         categorySelect.value = currentSelection;
     }
+}
+
+// Initialize the application
+function init() {
+    // Set up event listeners
+    newQuoteBtn.addEventListener('click', showRandomQuote);
+    addQuoteBtn.addEventListener('click', addQuote);
+
+    // Populate category filter
+    updateCategoryFilter();
+
+    // Show initial random quote
+    showRandomQuote();
 }
 
 // Initialize the app when the DOM is loaded
