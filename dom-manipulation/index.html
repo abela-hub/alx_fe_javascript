@@ -34,16 +34,25 @@
             background-color: #2980b9;
         }
 
-        #categoryButtons {
-            margin: 20px 0;
-        }
-
         .category-btn {
             background-color: #2ecc71;
         }
 
         .category-btn:hover {
             background-color: #27ae60;
+        }
+
+        .storage-btn {
+            background-color: #9b59b6;
+        }
+
+        .storage-btn:hover {
+            background-color: #8e44ad;
+        }
+
+        #categoryButtons,
+        #storageControls {
+            margin: 20px 0;
         }
 
         #addQuoteForm {
@@ -57,6 +66,14 @@
             padding: 8px;
             margin: 5px;
             width: 300px;
+        }
+
+        .selected {
+            background-color: #16a085 !important;
+        }
+
+        .file-input-container {
+            margin: 15px 0;
         }
     </style>
 </head>
@@ -72,6 +89,16 @@
     </div>
 
     <button id="newQuote">Show New Quote</button>
+
+    <div id="storageControls">
+        <h3>Data Management</h3>
+        <button id="exportQuotes" class="storage-btn">Export Quotes to JSON</button>
+        <div class="file-input-container">
+            <input type="file" id="importFile" accept=".json" />
+            <button onclick="importFromJson()" class="storage-btn">Import Quotes from JSON</button>
+        </div>
+        <button id="clearStorage" class="storage-btn">Clear All Data</button>
+    </div>
 
     <div id="addQuoteForm">
         <h3>Add a New Quote</h3>
