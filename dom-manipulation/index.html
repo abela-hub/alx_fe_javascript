@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Quote Generator with Filtering</title>
+    <title>Dynamic Quote Generator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,49 +13,53 @@
             padding: 20px;
         }
 
-        #quoteDisplay {
-            margin: 30px 0;
+        .quote {
+            background-color: #f5f5f5;
             padding: 20px;
-            border-left: 5px solid #3498db;
-            background-color: #f8f9fa;
-        }
-
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            margin: 5px;
-            border-radius: 4px;
-        }
-
-        button:hover {
-            background-color: #2980b9;
-        }
-
-        #filterControls,
-        #storageControls {
             margin: 20px 0;
-        }
-
-        #addQuoteForm {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #f1f1f1;
             border-radius: 5px;
         }
 
-        input,
-        select {
-            padding: 8px;
-            margin: 5px;
-            width: 300px;
+        .category {
+            font-style: italic;
+            color: #666;
         }
 
-        .active-filter {
-            font-weight: bold;
-            color: #2ecc71;
+        button,
+        input,
+        select {
+            padding: 8px 12px;
+            margin: 5px 0;
+        }
+
+        .section {
+            margin-top: 30px;
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+        }
+
+        #notificationArea {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .notification {
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid;
+        }
+
+        .success {
+            background-color: #ccffcc;
+            border-color: #00ff00;
+        }
+
+        .error {
+            background-color: #ffcccc;
+            border-color: #ff0000;
         }
     </style>
 </head>
@@ -63,38 +67,46 @@
 <body>
     <h1>Dynamic Quote Generator</h1>
 
-    <div id="filterControls">
-        <h3 id="filterStatus">Filter Quotes</h3>
+    <div id="quoteDisplay" class="quote">
+        <p id="quoteText">Click the button to display a quote!</p>
+        <p id="quoteCategory" class="category"></p>
+    </div>
+
+    <div id="categoryFilterContainer" style="margin: 20px 0;">
+        <label for="categoryFilter">Filter by category:</label>
         <select id="categoryFilter">
             <option value="all">All Categories</option>
-            <!-- Categories populated dynamically -->
+            <!-- Dynamically populated categories -->
         </select>
-        <button id="resetFilter">Reset Filter</button>
+        <button id="newQuote">Show Random Quote</button>
     </div>
 
-    <div id="quoteDisplay">
-        <p id="quoteText">Click the button to display a quote!</p>
-        <p id="quoteCategory"></p>
-    </div>
-
-    <button id="newQuote">Show Random Quote</button>
-
-    <div id="storageControls">
-        <h3>Data Management</h3>
-        <button id="exportQuotes">Export Quotes to JSON</button>
-        <div>
-            <input type="file" id="importFile" accept=".json" />
-            <button id="importQuotes">Import Quotes from JSON</button>
-        </div>
-        <button id="clearStorage">Clear All Data</button>
-    </div>
-
-    <div id="addQuoteForm">
-        <h3>Add a New Quote</h3>
-        <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
-        <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+    <div id="addQuoteForm" class="section">
+        <h3>Add New Quote</h3>
+        <input id="newQuoteText" type="text" placeholder="Enter a new quote" style="width: 100%;" />
+        <input id="newQuoteCategory" type="text" placeholder="Enter quote category" style="width: 100%;" />
         <button id="addQuoteBtn">Add Quote</button>
     </div>
+
+    <div id="importExport" class="section">
+        <h3>Import/Export Quotes</h3>
+        <button id="exportBtn">Export Quotes to JSON</button>
+        <br><br>
+        <input type="file" id="importFile" accept=".json" />
+        <label for="importFile">Import Quotes from JSON</label>
+    </div>
+
+    <div id="syncSection" class="section">
+        <h3>Data Sync</h3>
+        <button id="syncButton">Sync with Server</button>
+        <div id="conflictResolution" style="margin-top: 10px; display: none;">
+            <p>Conflict detected! Which version do you want to keep?</p>
+            <button id="keepLocalBtn">Keep Local Changes</button>
+            <button id="useServerBtn">Use Server Version</button>
+        </div>
+    </div>
+
+    <div id="notificationArea"></div>
 
     <script src="script.js"></script>
 </body>
