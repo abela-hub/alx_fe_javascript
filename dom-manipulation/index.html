@@ -5,33 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic Quote Generator</title>
-    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <h1>Dynamic Quote Generator</h1>
 
-    <div id="filterContainer"></div>
-
+    <!-- Quote display -->
     <div id="quoteDisplay"></div>
+    <button id="newQuote">Show New Quote</button>
 
-    <div id="buttonContainer">
-        <button id="newQuote">Show New Quote</button>
-        <button id="showAddForm">Add New Quote</button>
-    </div>
-
-    <div id="addQuoteForm" style="display: none;">
-        <h3>Add New Quote</h3>
+    <!-- Add quote form -->
+    <div>
         <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
         <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-        <button onclick="addQuote()">Add Quote</button>
-    </div>
-
-    <div id="exportImportContainer"></div>
-
-    <div id="syncContainer" class="sync-status">
-        Last sync: <span id="lastSync">Not synced yet</span>
-        <button id="manualSync">Sync Now</button>
+        <button id="addQuoteBtn">Add Quote</button>
     </div>
 
     <script src="script.js"></script>
