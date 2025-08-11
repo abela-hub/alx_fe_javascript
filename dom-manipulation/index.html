@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Quote Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        #quoteDisplay {
+            margin: 30px 0;
+            padding: 20px;
+            border-left: 5px solid #3498db;
+            background-color: #f8f9fa;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .form-group {
+            margin: 20px 0;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .category-filter {
+            margin: 20px 0;
+        }
+
+        .quote-meta {
+            font-style: italic;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Dynamic Quote Generator</h1>
+
+    <div class="category-filter">
+        <label for="categorySelect">Filter by category:</label>
+        <select id="categorySelect">
+            <option value="all">All Categories</option>
+        </select>
+    </div>
+
+    <div id="quoteDisplay">
+        <p>Click "Show New Quote" to get started!</p>
+    </div>
+
+    <button id="newQuote">Show New Quote</button>
+
+    <div class="form-group">
+        <h3>Add a New Quote</h3>
+        <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+        <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+        <button id="addQuoteBtn">Add Quote</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
