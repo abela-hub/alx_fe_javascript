@@ -1,114 +1,124 @@
+Sure — here’s the project split into **index.html** and **script.js**.
+
+**index.html**
+```html
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dynamic Quote Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .quote {
-            background-color: #f5f5f5;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 5px;
-        }
-
-        .category {
-            font-style: italic;
-            color: #666;
-        }
-
-        button,
-        input,
-        select {
-            padding: 8px 12px;
-            margin: 5px 0;
-        }
-
-        .section {
-            margin-top: 30px;
-            border-top: 1px solid #ccc;
-            padding-top: 20px;
-        }
-
-        #notificationArea {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .notification {
-            padding: 10px 20px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid;
-        }
-
-        .success {
-            background-color: #ccffcc;
-            border-color: #00ff00;
-        }
-
-        .error {
-            background-color: #ffcccc;
-            border-color: #ff0000;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-    <h1>Dynamic Quote Generator</h1>
-
-    <div id="quoteDisplay" class="quote">
-        <p id="quoteText">Click the button to display a quote!</p>
-        <p id="quoteCategory" class="category"></p>
+    <div id="app">
+        <h1>Dynamic Quote Generator</h1>
+        <select id="categoryFilter"></select>
+        <div id="quoteDisplay"></div>
+        <button id="newQuoteBtn">New Quote</button>
+        <form id="addQuoteForm">
+            <input type="text" id="quoteText" placeholder="Quote text" required />
+            <input type="text" id="quoteCategory" placeholder="Category" required />
+            <button type="submit">Add Quote</button>
+        </form>
+        <button id="exportBtn">Export Quotes</button>
+        <input type="file" id="importFile" />
+        <button id="syncBtn">Sync with Server</button>
     </div>
-
-    <div id="categoryFilterContainer" style="margin: 20px 0;">
-        <label for="categoryFilter">Filter by category:</label>
-        <select id="categoryFilter">
-            <option value="all">All Categories</option>
-            <!-- Dynamically populated categories -->
-        </select>
-        <button id="newQuote">Show Random Quote</button>
-    </div>
-
-    <div id="addQuoteForm" class="section">
-        <h3>Add New Quote</h3>
-        <input id="newQuoteText" type="text" placeholder="Enter a new quote" style="width: 100%;" />
-        <input id="newQuoteCategory" type="text" placeholder="Enter quote category" style="width: 100%;" />
-        <button id="addQuoteBtn">Add Quote</button>
-    </div>
-
-    <div id="importExport" class="section">
-        <h3>Import/Export Quotes</h3>
-        <button id="exportBtn">Export Quotes to JSON</button>
-        <br><br>
-        <input type="file" id="importFile" accept=".json" />
-        <label for="importFile">Import Quotes from JSON</label>
-    </div>
-
-    <div id="syncSection" class="section">
-        <h3>Data Sync</h3>
-        <button id="syncButton">Sync with Server</button>
-        <div id="conflictResolution" style="margin-top: 10px; display: none;">
-            <p>Conflict detected! Which version do you want to keep?</p>
-            <button id="keepLocalBtn">Keep Local Changes</button>
-            <button id="useServerBtn">Use Server Version</button>
-        </div>
-    </div>
-
-    <div id="notificationArea"></div>
-
     <script src="script.js"></script>
 </body>
 
 </html>
+```
+
+**script.js**
+```javascript
+document.addEventListener('DOMContentLoaded', () => {
+let quotes = JSON.parse(localStorage.getItem('quotes')) || [
+{ text: "The best way to predict the future is to invent it.", category: "Inspiration" },
+{ text: "Life is 10% what happens to us and 90% how we react to it.", category: "Motivation" }
+];
+
+const quoteDisplay = document.getElementById('quoteDisplay');
+const newQuoteBtn = document.getElementById('newQuoteBtn');
+const categoryFilter = document.getElementById('categoryFilter');
+
+function populateCategories() {
+const categories = ["All", ...new Set(quotes.map(q => q.category))];
+categoryFilter.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+}
+
+function displayQuote() {
+let filtered = categoryFilter.value === 'All' ? quotes : quotes.filter(q => q.category === categoryFilter.value);
+if (filtered.length > 0) {
+const randomQuote = filtered[Math.floor(Math.random() * filtered.length)];
+quoteDisplay.textContent = `${randomQuote.text} — [${randomQuote.category}]`;
+} else {
+quoteDisplay.textContent = 'No quotes in this category.';
+}
+}
+
+newQuoteBtn.addEventListener('click', displayQuote);
+
+document.getElementById('addQuoteForm').addEventListener('submit', e => {
+e.preventDefault();
+const text = document.getElementById('quoteText').value;
+const category = document.getElementById('quoteCategory').value;
+quotes.push({ text, category });
+localStorage.setItem('quotes', JSON.stringify(quotes));
+populateCategories();
+displayQuote();
+e.target.reset();
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+const blob = new Blob([JSON.stringify(quotes)], { type: 'application/json' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'quotes.json';
+a.click();
+URL.revokeObjectURL(url);
+});
+
+document.getElementById('importFile').addEventListener('change', event => {
+const file = event.target.files[0];
+if (file) {
+const reader = new FileReader();
+reader.onload = e => {
+try {
+const importedQuotes = JSON.parse(e.target.result);
+quotes = [...quotes, ...importedQuotes];
+localStorage.setItem('quotes', JSON.stringify(quotes));
+populateCategories();
+displayQuote();
+} catch {
+alert('Invalid JSON file.');
+}
+};
+reader.readAsText(file);
+}
+});
+
+document.getElementById('syncBtn').addEventListener('click', async () => {
+try {
+const res = await fetch('https://jsonplaceholder.typicode.com/posts');
+const serverQuotes = await res.json();
+// Simulate merging quotes from server
+quotes = [...quotes, ...serverQuotes.map(p => ({ text: p.title, category: 'Server' }))];
+localStorage.setItem('quotes', JSON.stringify(quotes));
+populateCategories();
+displayQuote();
+} catch {
+alert('Server sync failed.');
+}
+});
+
+populateCategories();
+displayQuote();
+});
+```
+
+Do you want me to also make a **styles.css** for a nice UI?
