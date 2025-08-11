@@ -19,6 +19,15 @@ function init() {
     showRandomQuote();
     createCategoryButtons();
     setupEventListeners();
+
+    // Create the add quote form (though it's already in HTML)
+    createAddQuoteForm();
+}
+
+// Create the add quote form (though it exists in HTML)
+function createAddQuoteForm() {
+    // Form is already in HTML, but we can add any JS enhancements here
+    console.log("Add quote form is ready");
 }
 
 // Load quotes from localStorage
@@ -141,22 +150,28 @@ function addQuote() {
     if (newCategoryButton) highlightSelectedButton(newCategoryButton);
 }
 
-// Export quotes to JSON file
-function exportToJson() {
-    const dataStr = JSON.stringify(quotes, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+// Export quotes to JSON file using Blob
+function exportToJsonFile() {
+    try {
+        const data = JSON.stringify(quotes, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
 
-    const exportFileDefaultName = 'quotes.json';
-
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'quotes.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        alert('Error exporting quotes: ' + error.message);
+    }
 }
 
 // Import quotes from JSON file
-function importFromJson() {
-    const file = importFileInput.files[0];
+function importFromJsonFile(event) {
+    const file = event.target.files[0];
     if (!file) {
         alert('Please select a file first!');
         return;
@@ -185,10 +200,13 @@ function importFromJson() {
             alert(`Successfully imported ${importedQuotes.length} quotes!`);
 
             // Reset file input
-            importFileInput.value = '';
+            event.target.value = '';
         } catch (error) {
             alert(`Error importing quotes: ${error.message}`);
         }
+    };
+    fileReader.onerror = function () {
+        alert('Error reading file');
     };
     fileReader.readAsText(file);
 }
@@ -206,21 +224,17 @@ function clearStorage() {
 
 // Setup event listeners
 function setupEventListeners() {
+    // Event listener for "Show New Quote" button
     newQuoteButton.addEventListener('click', showRandomQuote);
-    exportButton.addEventListener('click', exportToJson);
-    clearStorageButton.addEventListener('click', clearStorage);
 
-    // Display last viewed quote from session if available
-    const lastQuote = sessionStorage.getItem('lastQuote');
-    if (lastQuote) {
-        try {
-            const parsedQuote = JSON.parse(lastQuote);
-            quoteTextElement.textContent = parsedQuote.text;
-            quoteCategoryElement.textContent = `— ${parsedQuote.category}`;
-        } catch (e) {
-            console.error('Error parsing last quote from session:', e);
-        }
-    }
+    // Event listener for export button
+    exportButton.addEventListener('click', exportToJsonFile);
+
+    // Event listener for import file input
+    importFileInput.addEventListener('change', importFromJsonFile);
+
+    // Event listener for clear storage button
+    clearStorageButton.addEventListener('click', clearStorage);
 }
 
 // Initialize when DOM loads
