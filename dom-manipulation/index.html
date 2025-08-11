@@ -51,6 +51,7 @@
         }
 
         #categoryButtons,
+        #filterControls,
         #storageControls {
             margin: 20px 0;
         }
@@ -62,7 +63,8 @@
             border-radius: 5px;
         }
 
-        input {
+        input,
+        select {
             padding: 8px;
             margin: 5px;
             width: 300px;
@@ -70,6 +72,11 @@
 
         .selected {
             background-color: #16a085 !important;
+        }
+
+        .filter-active {
+            font-weight: bold;
+            color: #2ecc71;
         }
 
         .file-input-container {
@@ -81,6 +88,15 @@
 <body>
     <h1>Dynamic Quote Generator</h1>
 
+    <div id="filterControls">
+        <h3 id="filterLabel">Filter Quotes</h3>
+        <select id="categoryFilter">
+            <option value="all">All Categories</option>
+            <!-- Categories will be populated dynamically -->
+        </select>
+        <button id="resetFilter">Reset Filter</button>
+    </div>
+
     <div id="categoryButtons"></div>
 
     <div id="quoteDisplay">
@@ -88,14 +104,14 @@
         <p id="quoteCategory"></p>
     </div>
 
-    <button id="newQuote">Show New Quote</button>
+    <button id="newQuote">Show Random Quote</button>
 
     <div id="storageControls">
         <h3>Data Management</h3>
         <button id="exportQuotes" class="storage-btn">Export Quotes to JSON</button>
         <div class="file-input-container">
             <input type="file" id="importFile" accept=".json" />
-            <button onclick="importFromJson()" class="storage-btn">Import Quotes from JSON</button>
+            <button id="importQuotes" class="storage-btn">Import Quotes from JSON</button>
         </div>
         <button id="clearStorage" class="storage-btn">Clear All Data</button>
     </div>
@@ -104,7 +120,7 @@
         <h3>Add a New Quote</h3>
         <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
         <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-        <button onclick="addQuote()">Add Quote</button>
+        <button id="addQuoteBtn">Add Quote</button>
     </div>
 
     <script src="script.js"></script>
