@@ -1,107 +1,111 @@
-// Initial quotes data
-let quotes = [
-    { text: "The only way to do great work is to love what you do.", category: "work" },
-    { text: "Life is what happens when you're busy making other plans.", category: "life" },
-    { text: "In the middle of difficulty lies opportunity.", category: "inspiration" },
-    { text: "Simplicity is the ultimate sophistication.", category: "design" },
-    { text: "The best way to predict the future is to invent it.", category: "technology" }
-];
+// Use a self-invoking anonymous function to avoid polluting the global scope.
+(function () {
+    // Step 1: Initialize the data source
+    let quotes = [
+        { text: "The only way to do great work is to love what you do.", category: "Inspirational" },
+        { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", category: "Inspirational" },
+        { text: "The future belongs to those who believe in the beauty of their dreams.", category: "Motivational" },
+        { text: "It is during our darkest moments that we must focus to see the light.", category: "Wisdom" },
+        { text: "The only thing we have to fear is fear itself.", category: "Historical" }
+    ];
 
-// DOM elements
-const quoteDisplay = document.getElementById('quoteDisplay');
-const newQuoteBtn = document.getElementById('newQuote');
-const addQuoteBtn = document.getElementById('addQuoteBtn');
-const newQuoteText = document.getElementById('newQuoteText');
-const newQuoteCategory = document.getElementById('newQuoteCategory');
-const categorySelect = document.getElementById('categorySelect');
+    // Step 2: Get DOM elements
+    const quoteDisplay = document.getElementById('quoteDisplay');
+    const newQuoteBtn = document.getElementById('newQuote');
+    const newQuoteText = document.getElementById('newQuoteText');
+    const newQuoteCategory = document.getElementById('newQuoteCategory');
+    const addQuoteBtn = document.getElementById('addQuoteBtn');
+    const messageBox = document.getElementById('messageBox');
 
-// Function to display a random quote
-function showRandomQuote() {
-    let filteredQuotes = quotes;
-    const selectedCategory = categorySelect.value;
+    let lastQuoteIndex = -1;
 
-    if (selectedCategory !== 'all') {
-        filteredQuotes = quotes.filter(quote => quote.category === selectedCategory);
+    // Step 3: Implement the core functionality
+    /**
+     * Displays a random quote in the quoteDisplay area.
+     * It ensures the same quote is not shown twice in a row.
+     */
+    function showRandomQuote() {
+        // Handle the case where there are no quotes
+        if (quotes.length === 0) {
+            quoteDisplay.innerHTML = `
+                <p class="text-xl italic text-gray-500">No quotes available. Add a new one below!</p>
+            `;
+            return;
+        }
+
+        let randomIndex;
+        // Generate a new random index that is not the same as the last one.
+        do {
+            randomIndex = Math.floor(Math.random() * quotes.length);
+        } while (randomIndex === lastQuoteIndex && quotes.length > 1);
+
+        const quote = quotes[randomIndex];
+        lastQuoteIndex = randomIndex;
+
+        // Clear previous content
+        quoteDisplay.innerHTML = '';
+
+        // Dynamically create and append new elements for the quote
+        const quoteTextElement = document.createElement('p');
+        quoteTextElement.className = "text-2xl italic font-medium text-gray-800";
+        quoteTextElement.textContent = `"${quote.text}"`;
+
+        const quoteCategoryElement = document.createElement('p');
+        quoteCategoryElement.className = "text-lg text-gray-500 mt-4 font-semibold";
+        quoteCategoryElement.textContent = `— ${quote.category}`;
+
+        quoteDisplay.appendChild(quoteTextElement);
+        quoteDisplay.appendChild(quoteCategoryElement);
     }
 
-    if (filteredQuotes.length === 0) {
-        quoteDisplay.innerHTML = '<p>No quotes found in this category. Try adding some!</p>';
-        return;
+    /**
+     * Adds a new quote to the quotes array from the input fields.
+     * It also updates the DOM and shows a confirmation message.
+     */
+    function addQuote() {
+        const text = newQuoteText.value.trim();
+        const category = newQuoteCategory.value.trim();
+
+        if (text === "" || category === "") {
+            showMessage("Please fill out both quote text and category.", "bg-red-100 text-red-700");
+            return;
+        }
+
+        // Create a new quote object and add it to the array
+        const newQuote = { text, category };
+        quotes.push(newQuote);
+
+        // Clear the input fields
+        newQuoteText.value = '';
+        newQuoteCategory.value = '';
+
+        // Show a success message
+        showMessage("New quote added successfully!", "bg-green-100 text-green-700");
+
+        // If this is the first quote added, display it immediately
+        if (quotes.length === 1) {
+            showRandomQuote();
+        }
     }
 
-    const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
-    const quote = filteredQuotes[randomIndex];
-
-    quoteDisplay.innerHTML = `
-        <blockquote>"${quote.text}"</blockquote>
-        <div class="quote-meta">Category: ${quote.category}</div>
-    `;
-}
-
-// Function to add a new quote
-function addQuote() {
-    const text = newQuoteText.value.trim();
-    const category = newQuoteCategory.value.trim();
-
-    if (!text || !category) {
-        alert('Please enter both quote text and category');
-        return;
+    /**
+     * Displays a temporary message in the message box.
+     * @param {string} message - The message to display.
+     * @param {string} className - Tailwind classes for the message box styling.
+     */
+    function showMessage(message, className) {
+        messageBox.textContent = message;
+        messageBox.className = `mt-4 p-4 text-center text-sm rounded-lg ${className}`;
+        messageBox.style.display = 'block';
+        setTimeout(() => {
+            messageBox.style.display = 'none';
+        }, 3000); // Hide the message after 3 seconds
     }
 
-    const newQuote = { text, category };
-    quotes.push(newQuote);
-
-    // Clear the form
-    newQuoteText.value = '';
-    newQuoteCategory.value = '';
-
-    // Update the UI
-    updateCategoryFilter();
-    showRandomQuote();
-
-    // Notify user
-    alert('Quote added successfully!');
-}
-
-// Function to update the category filter dropdown
-function updateCategoryFilter() {
-    // Get all unique categories
-    const categories = [...new Set(quotes.map(quote => quote.category))];
-
-    // Save the current selection
-    const currentSelection = categorySelect.value;
-
-    // Clear existing options (except "All Categories")
-    while (categorySelect.options.length > 1) {
-        categorySelect.remove(1);
-    }
-
-    // Add new category options
-    categories.forEach(category => {
-        const option = document.createElement('option');
-        option.value = category;
-        option.textContent = category;
-        categorySelect.appendChild(option);
-    });
-
-    // Restore selection if it still exists
-    if (categories.includes(currentSelection)) {
-        categorySelect.value = currentSelection;
-    }
-}
-
-// Initialize the application
-function init() {
-    // Set up event listeners
+    // Step 4: Add event listeners
     newQuoteBtn.addEventListener('click', showRandomQuote);
     addQuoteBtn.addEventListener('click', addQuote);
 
-    // Populate category filter
-    updateCategoryFilter();
-
-    // Show initial random quote
-    showRandomQuote();
-}
-
-// Initialize the app when the DOM is loaded
-document.addEventListener('DOMContentLoaded', init);
+    // Step 5: Initial setup - show a quote when the page first loads
+    document.addEventListener('DOMContentLoaded', showRandomQuote);
+})();
