@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Quote Generator</title>
+    <title>Dynamic Quote Generator with Filtering</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -34,23 +34,6 @@
             background-color: #2980b9;
         }
 
-        .category-btn {
-            background-color: #2ecc71;
-        }
-
-        .category-btn:hover {
-            background-color: #27ae60;
-        }
-
-        .storage-btn {
-            background-color: #9b59b6;
-        }
-
-        .storage-btn:hover {
-            background-color: #8e44ad;
-        }
-
-        #categoryButtons,
         #filterControls,
         #storageControls {
             margin: 20px 0;
@@ -70,17 +53,9 @@
             width: 300px;
         }
 
-        .selected {
-            background-color: #16a085 !important;
-        }
-
-        .filter-active {
+        .active-filter {
             font-weight: bold;
             color: #2ecc71;
-        }
-
-        .file-input-container {
-            margin: 15px 0;
         }
     </style>
 </head>
@@ -89,15 +64,13 @@
     <h1>Dynamic Quote Generator</h1>
 
     <div id="filterControls">
-        <h3 id="filterLabel">Filter Quotes</h3>
+        <h3 id="filterStatus">Filter Quotes</h3>
         <select id="categoryFilter">
             <option value="all">All Categories</option>
-            <!-- Categories will be populated dynamically -->
+            <!-- Categories populated dynamically -->
         </select>
         <button id="resetFilter">Reset Filter</button>
     </div>
-
-    <div id="categoryButtons"></div>
 
     <div id="quoteDisplay">
         <p id="quoteText">Click the button to display a quote!</p>
@@ -108,12 +81,12 @@
 
     <div id="storageControls">
         <h3>Data Management</h3>
-        <button id="exportQuotes" class="storage-btn">Export Quotes to JSON</button>
-        <div class="file-input-container">
+        <button id="exportQuotes">Export Quotes to JSON</button>
+        <div>
             <input type="file" id="importFile" accept=".json" />
-            <button id="importQuotes" class="storage-btn">Import Quotes from JSON</button>
+            <button id="importQuotes">Import Quotes from JSON</button>
         </div>
-        <button id="clearStorage" class="storage-btn">Clear All Data</button>
+        <button id="clearStorage">Clear All Data</button>
     </div>
 
     <div id="addQuoteForm">
