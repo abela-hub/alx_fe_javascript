@@ -1,15 +1,24 @@
-// Retrieve quotes from local storage or set defaults
-let quotes = JSON.parse(localStorage.getItem("quotes")) || [
+// ====== Storage Keys ======
+const LOCAL_STORAGE_KEY = "quotes";
+const SESSION_STORAGE_KEY = "lastViewedQuote";
+
+// ====== Load Quotes from Local Storage or Defaults ======
+let quotes = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [
     { text: "The best way to predict the future is to invent it.", category: "Inspiration" },
     { text: "Life is 10% what happens to us and 90% how we react to it.", category: "Life" },
     { text: "Do not watch the clock. Do what it does. Keep going.", category: "Motivation" }
 ];
 
-// DOM references
+// ====== DOM References ======
 const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteBtn = document.getElementById("newQuote");
 
-// Show random quote
+// ====== Save Quotes to Local Storage ======
+function saveQuotes() {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(quotes));
+}
+
+// ====== Show Random Quote ======
 function showRandomQuote() {
     if (quotes.length === 0) {
         quoteDisplay.innerHTML = "No quotes available.";
@@ -18,9 +27,12 @@ function showRandomQuote() {
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const quote = quotes[randomIndex];
     quoteDisplay.innerHTML = `<p>"${quote.text}"</p><small>- ${quote.category}</small>`;
+
+    // Save last viewed quote to session storage
+    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(quote));
 }
 
-// Create the add quote form dynamically
+// ====== Create Add Quote Form ======
 function createAddQuoteForm() {
     const formContainer = document.createElement("div");
 
@@ -45,7 +57,7 @@ function createAddQuoteForm() {
     document.body.appendChild(formContainer);
 }
 
-// Add new quote
+// ====== Add New Quote ======
 function addQuote() {
     const newText = document.getElementById("newQuoteText").value.trim();
     const newCategory = document.getElementById("newQuoteCategory").value.trim();
@@ -57,9 +69,7 @@ function addQuote() {
 
     const newQuote = { text: newText, category: newCategory };
     quotes.push(newQuote);
-
-    // Save to localStorage
-    localStorage.setItem("quotes", JSON.stringify(quotes));
+    saveQuotes();
 
     // Update the DOM immediately with the new quote
     showRandomQuote();
@@ -69,9 +79,63 @@ function addQuote() {
     document.getElementById("newQuoteCategory").value = "";
 }
 
-// Event listener for "Show New Quote" button
+// ====== Export Quotes to JSON ======
+function exportToJsonFile() {
+    const dataStr = JSON.stringify(quotes, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "quotes.json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// ====== Import Quotes from JSON File ======
+function importFromJsonFile(event) {
+    const fileReader = new FileReader();
+    fileReader.onload = function (e) {
+        try {
+            const importedQuotes = JSON.parse(e.target.result);
+            if (!Array.isArray(importedQuotes)) throw new Error("Invalid file format");
+            quotes.push(...importedQuotes);
+            saveQuotes();
+            alert("Quotes imported successfully!");
+        } catch (error) {
+            alert("Error importing file: " + error.message);
+        }
+    };
+    fileReader.readAsText(event.target.files[0]);
+}
+
+// ====== Create Import/Export UI ======
+function createImportExportButtons() {
+    const exportBtn = document.createElement("button");
+    exportBtn.textContent = "Export Quotes";
+    exportBtn.addEventListener("click", exportToJsonFile);
+
+    const importInput = document.createElement("input");
+    importInput.type = "file";
+    importInput.accept = ".json";
+    importInput.addEventListener("change", importFromJsonFile);
+
+    document.body.appendChild(exportBtn);
+    document.body.appendChild(importInput);
+}
+
+// ====== Event Listeners ======
 newQuoteBtn.addEventListener("click", showRandomQuote);
 
-// Initialize app
+// ====== Initialize ======
 createAddQuoteForm();
-showRandomQuote();
+createImportExportButtons();
+
+// If there's a last viewed quote in session storage, show it; otherwise show a random one
+const lastViewedQuote = JSON.parse(sessionStorage.getItem(SESSION_STORAGE_KEY));
+if (lastViewedQuote) {
+    quoteDisplay.innerHTML = `<p>"${lastViewedQuote.text}"</p><small>- ${lastViewedQuote.category}</small>`;
+} else {
+    showRandomQuote();
+}
