@@ -8,7 +8,6 @@ let quotes = JSON.parse(localStorage.getItem("quotes")) || [
 // DOM references
 const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteBtn = document.getElementById("newQuote");
-const addQuoteBtn = document.getElementById("addQuoteBtn");
 
 // Show random quote
 function showRandomQuote() {
@@ -19,6 +18,31 @@ function showRandomQuote() {
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const quote = quotes[randomIndex];
     quoteDisplay.innerHTML = `<p>"${quote.text}"</p><small>- ${quote.category}</small>`;
+}
+
+// Create the add quote form dynamically
+function createAddQuoteForm() {
+    const formContainer = document.createElement("div");
+
+    const textInput = document.createElement("input");
+    textInput.type = "text";
+    textInput.id = "newQuoteText";
+    textInput.placeholder = "Enter a new quote";
+
+    const categoryInput = document.createElement("input");
+    categoryInput.type = "text";
+    categoryInput.id = "newQuoteCategory";
+    categoryInput.placeholder = "Enter quote category";
+
+    const addButton = document.createElement("button");
+    addButton.textContent = "Add Quote";
+    addButton.addEventListener("click", addQuote);
+
+    formContainer.appendChild(textInput);
+    formContainer.appendChild(categoryInput);
+    formContainer.appendChild(addButton);
+
+    document.body.appendChild(formContainer);
 }
 
 // Add new quote
@@ -33,16 +57,21 @@ function addQuote() {
 
     const newQuote = { text: newText, category: newCategory };
     quotes.push(newQuote);
+
+    // Save to localStorage
     localStorage.setItem("quotes", JSON.stringify(quotes));
 
+    // Update the DOM immediately with the new quote
+    showRandomQuote();
+
+    // Clear input fields
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
-    alert("Quote added successfully!");
 }
 
-// Event listeners
+// Event listener for "Show New Quote" button
 newQuoteBtn.addEventListener("click", showRandomQuote);
-addQuoteBtn.addEventListener("click", addQuote);
 
-// Show a quote on load
+// Initialize app
+createAddQuoteForm();
 showRandomQuote();
