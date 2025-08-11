@@ -4,25 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Quote Generator</title>
+    <title>Dynamic Quote Generator with Categories</title>
 </head>
 
 <body>
     <h1>Dynamic Quote Generator</h1>
 
-    <div id="quoteDisplay"></div>
-    <button id="newQuote">Show New Quote</button>
-    <hr>
+    <!-- Category Filter -->
+    <label for="categoryFilter">Filter by Category:</label>
+    <select id="categoryFilter" onchange="filterQuotes()"></select>
 
-    <h3>Add a New Quote</h3>
-    <input id="newQuoteText" type="text" placeholder="Enter a new quote">
-    <input id="newQuoteCategory" type="text" placeholder="Enter quote category">
-    <button id="addQuoteBtn">Add Quote</button>
-    <hr>
+    <!-- Quote Display -->
+    <div id="quoteDisplay" style="margin-top: 20px; font-style: italic;"></div>
 
-    <h3>Import/Export Quotes</h3>
-    <button id="exportQuotesBtn">Export Quotes (JSON)</button>
-    <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+    <!-- Buttons -->
+    <button id="newQuoteBtn">Show New Quote</button>
+    <button id="exportQuotesBtn">Export Quotes</button>
+    <input type="file" id="importQuotesInput" accept="application/json">
+
+    <!-- Add Quote Form -->
+    <div id="addQuoteFormContainer" style="margin-top: 20px;">
+        <input type="text" id="newQuoteText" placeholder="Enter new quote">
+        <input type="text" id="newQuoteCategory" placeholder="Enter category">
+        <button id="addQuoteBtn">Add Quote</button>
+    </div>
 
     <script src="script.js"></script>
 </body>
