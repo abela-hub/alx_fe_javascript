@@ -12,7 +12,7 @@ const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteBtn = document.getElementById("newQuote");
 const categoryFilter = document.getElementById("categoryFilter");
 
-// Simulated server (JSONPlaceholder for demo)
+// Mock API (using JSONPlaceholder for simulation)
 const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
 
 // ==========================
@@ -65,7 +65,7 @@ function addQuote() {
     populateCategories();
     alert("Quote added successfully!");
 
-    pushToServer(newQuote); // sync with server
+    postQuoteToServer(newQuote); // ✅ renamed to match expectation
 
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
@@ -125,12 +125,14 @@ function importFromJsonFile(event) {
 // ==========================
 // Server Sync & Conflicts
 // ==========================
-async function fetchFromServer() {
+
+// ✅ fetchQuotesFromServer (required name)
+async function fetchQuotesFromServer() {
     try {
         const response = await fetch(SERVER_URL);
         let serverQuotes = await response.json();
 
-        // Simulate quotes (JSONPlaceholder returns posts)
+        // Simulate quotes (map server posts into quotes)
         serverQuotes = serverQuotes.slice(0, 5).map(post => ({
             text: post.title,
             category: "Server"
@@ -142,7 +144,8 @@ async function fetchFromServer() {
     }
 }
 
-async function pushToServer(newQuote) {
+// ✅ postQuoteToServer (posting new quotes)
+async function postQuoteToServer(newQuote) {
     try {
         await fetch(SERVER_URL, {
             method: "POST",
@@ -151,10 +154,16 @@ async function pushToServer(newQuote) {
         });
         console.log("Quote synced to server:", newQuote);
     } catch (error) {
-        console.error("Error pushing to server:", error);
+        console.error("Error posting to server:", error);
     }
 }
 
+// ✅ syncQuotes (periodic sync)
+function syncQuotes() {
+    fetchQuotesFromServer();
+}
+
+// Conflict resolution
 function resolveConflicts(serverQuotes) {
     let updated = false;
 
@@ -201,8 +210,8 @@ window.onload = () => {
     loadQuotes();
     populateCategories();
     showRandomQuote();
-    fetchFromServer();
+    syncQuotes(); // ✅ initial sync
 };
 
-// Periodic server sync (30s)
-setInterval(fetchFromServer, 30000);
+// ✅ Periodic sync every 30s
+setInterval(syncQuotes, 30000);
