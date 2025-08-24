@@ -65,7 +65,7 @@ function addQuote() {
     populateCategories();
     alert("Quote added successfully!");
 
-    postQuoteToServer(newQuote); // ✅ renamed to match expectation
+    postQuoteToServer(newQuote); // ✅ post new quote to server
 
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
@@ -126,7 +126,7 @@ function importFromJsonFile(event) {
 // Server Sync & Conflicts
 // ==========================
 
-// ✅ fetchQuotesFromServer (required name)
+// ✅ fetchQuotesFromServer
 async function fetchQuotesFromServer() {
     try {
         const response = await fetch(SERVER_URL);
@@ -144,13 +144,13 @@ async function fetchQuotesFromServer() {
     }
 }
 
-// ✅ postQuoteToServer (posting new quotes)
+// ✅ postQuoteToServer (correct header name "Content-Type")
 async function postQuoteToServer(newQuote) {
     try {
         await fetch(SERVER_URL, {
             method: "POST",
             body: JSON.stringify(newQuote),
-            headers: { "Content-type": "application/json; charset=UTF-8" }
+            headers: { "Content-Type": "application/json; charset=UTF-8" } // ✅ corrected
         });
         console.log("Quote synced to server:", newQuote);
     } catch (error) {
@@ -158,7 +158,7 @@ async function postQuoteToServer(newQuote) {
     }
 }
 
-// ✅ syncQuotes (periodic sync)
+// ✅ syncQuotes (periodic sync entry point)
 function syncQuotes() {
     fetchQuotesFromServer();
 }
@@ -180,7 +180,7 @@ function resolveConflicts(serverQuotes) {
     });
 
     if (updated) {
-        saveQuotes();
+        saveQuotes(); // ✅ update local storage
         populateCategories();
         notifyUser("Quotes updated from server. Conflicts resolved using server data.");
     }
